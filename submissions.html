@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Submit — SEOX, LLC</title>
+  <meta name="description" content="Submit your music to SEOX, LLC. We listen to every track." />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* ── Submissions-specific ── */
+
+    /* Waveform animation */
+    .waveform {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      height: 40px;
+    }
+
+    .waveform-bar {
+      width: 3px;
+      background: var(--neon-cyan);
+      border-radius: 2px;
+      animation: wave-anim 1.2s ease-in-out infinite;
+      box-shadow: 0 0 6px rgba(0,245,255,0.5);
+    }
+
+    @keyframes wave-anim {
+      0%, 100% { height: 6px; opacity: 0.4; }
+      50% { height: 30px; opacity: 1; }
+    }
+
+    /* Stagger waveform bars */
+    .waveform-bar:nth-child(1)  { animation-delay: 0.00s; }
+    .waveform-bar:nth-child(2)  { animation-delay: 0.08s; }
+    .waveform-bar:nth-child(3)  { animation-delay: 0.16s; }
+    .waveform-bar:nth-child(4)  { animation-delay: 0.24s; }
+    .waveform-bar:nth-child(5)  { animation-delay: 0.32s; }
+    .waveform-bar:nth-child(6)  { animation-delay: 0.24s; }
+    .waveform-bar:nth-child(7)  { animation-delay: 0.16s; }
+    .waveform-bar:nth-child(8)  { animation-delay: 0.08s; }
+    .waveform-bar:nth-child(9)  { animation-delay: 0.00s; }
+    .waveform-bar:nth-child(10) { animation-delay: 0.12s; }
+    .waveform-bar:nth-child(11) { animation-delay: 0.20s; }
+    .waveform-bar:nth-child(12) { animation-delay: 0.28s; }
+
+    /* Typing text */
+    .typing-line {
+      font-family: var(--font-ui);
+      font-size: 12px;
+      letter-spacing: 0.15em;
+      color: rgba(0,245,255,0.6);
+      overflow: hidden;
+      white-space: nowrap;
+      border-right: 1px solid var(--neon-cyan);
+      width: 0;
+      animation: typing 2s 2s steps(30) forwards, blink-cursor 0.8s step-end infinite;
+    }
+
+    @keyframes typing {
+      to { width: 100%; }
+    }
+
+    @keyframes blink-cursor {
+      0%, 100% { border-color: var(--neon-cyan); }
+      50% { border-color: transparent; }
+    }
+
+    /* Corner decorations on form box */
+    .corner-deco {
+      position: absolute;
+      width: 20px; height: 20px;
+      pointer-events: none;
+    }
+
+    .corner-deco.tl { top: 0; left: 0; border-top: 1px solid var(--neon-cyan); border-left: 1px solid var(--neon-cyan); }
+    .corner-deco.tr { top: 0; right: 0; border-top: 1px solid var(--neon-cyan); border-right: 1px solid var(--neon-cyan); }
+    .corner-deco.bl { bottom: 0; left: 0; border-bottom: 1px solid var(--neon-cyan); border-left: 1px solid var(--neon-cyan); }
+    .corner-deco.br { bottom: 0; right: 0; border-bottom: 1px solid var(--neon-cyan); border-right: 1px solid var(--neon-cyan); }
+
+    /* Glowing border pulse */
+    @keyframes border-glow {
+      0%, 100% { box-shadow: 0 0 20px rgba(0,245,255,0.1), inset 0 0 20px rgba(0,245,255,0.02); }
+      50% { box-shadow: 0 0 40px rgba(0,245,255,0.2), inset 0 0 30px rgba(0,245,255,0.05); }
+    }
+
+    .sub-form-wrapper {
+      animation: border-glow 4s ease infinite;
+    }
+
+    /* Process steps */
+    .process-steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      margin: 80px 0;
+    }
+
+    .process-step {
+      background: var(--dark-1);
+      padding: 50px 40px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .process-step::after {
+      content: '';
+      position: absolute;
+      top: 50%; right: -1px;
+      transform: translateY(-50%);
+      width: 2px; height: 40px;
+      background: rgba(0,245,255,0.2);
+    }
+
+    .process-step:last-child::after { display: none; }
+
+    .step-num {
+      font-family: var(--font-display);
+      font-size: 80px;
+      color: rgba(255,255,255,0.03);
+      line-height: 1;
+      margin-bottom: 20px;
+    }
+
+    .step-title {
+      font-family: var(--font-display);
+      font-size: 22px;
+      letter-spacing: 0.05em;
+      margin-bottom: 12px;
+      color: var(--neon-cyan);
+    }
+
+    .step-text {
+      font-family: var(--font-ui);
+      font-size: 13px;
+      color: rgba(255,255,255,0.4);
+      line-height: 1.8;
+    }
+
+    /* FAQ */
+    .faq-section {
+      margin: 60px 0;
+    }
+
+    .faq-item {
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .faq-question {
+      padding: 24px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: none;
+      font-family: var(--font-display);
+      font-size: 20px;
+      letter-spacing: 0.05em;
+      color: rgba(255,255,255,0.7);
+      transition: color var(--transition-fast);
+    }
+
+    .faq-question:hover { color: var(--white); }
+
+    .faq-icon {
+      width: 20px; height: 20px;
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .faq-icon::before,
+    .faq-icon::after {
+      content: '';
+      position: absolute;
+      background: var(--neon-cyan);
+      border-radius: 1px;
+      transition: transform var(--transition-med);
+    }
+
+    .faq-icon::before { top: 50%; left: 0; width: 100%; height: 1px; transform: translateY(-50%); }
+    .faq-icon::after  { top: 0; left: 50%; width: 1px; height: 100%; transform: translateX(-50%); }
+
+    .faq-item.open .faq-icon::after { transform: translateX(-50%) rotate(90deg); opacity: 0; }
+
+    .faq-answer {
+      height: 0;
+      overflow: hidden;
+      transition: height var(--transition-med);
+    }
+
+    .faq-answer-inner {
+      padding-bottom: 24px;
+      font-family: var(--font-ui);
+      font-size: 14px;
+      color: rgba(255,255,255,0.45);
+      line-height: 1.9;
+    }
+
+    @media (max-width: 768px) {
+      .process-steps { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="noise-overlay"></div>
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+<div id="loading-screen">
+  <div class="loader-logo">SEOX</div>
+  <div class="loader-bar-track"><div class="loader-bar-fill"></div></div>
+  <div class="loader-text">Loading</div>
+</div>
+<div id="page-transition"></div>
+
+<nav id="navbar">
+  <a href="index.html" class="nav-logo">SEOX</a>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="artists.html">Artists</a></li>
+    <li><a href="submissions.html" class="active">Submit</a></li>
+    <li><a href="contact.html">Contact</a></li>
+  </ul>
+  <div class="nav-hamburger" id="nav-hamburger">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+<div class="nav-mobile" id="nav-mobile">
+  <a href="index.html">Home</a>
+  <a href="about.html">About</a>
+  <a href="artists.html">Artists</a>
+  <a href="submissions.html">Submit</a>
+  <a href="contact.html">Contact</a>
+</div>
+
+<canvas id="bg-canvas" style="position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0.3;"></canvas>
+
+<div class="page-content">
+
+  <!-- ── HERO ── -->
+  <section class="submissions-hero" style="padding-top: var(--nav-height);">
+    <div class="submissions-hero-content">
+      <div class="section-label" style="justify-content:center;">Open Call</div>
+      <h1 style="font-family:var(--font-display); font-size:clamp(60px,11vw,140px); letter-spacing:0.05em; line-height:0.95; margin-bottom:20px;">
+        SUBMIT YOUR<br>TRACK
+      </h1>
+      <p style="font-family:var(--font-ui); font-size:16px; color:rgba(255,255,255,0.35); letter-spacing:0.15em; text-transform:uppercase;">
+        We Listen to Every Submission
+      </p>
+      <div class="waveform" style="margin: 30px auto; justify-content:center;">
+        <div class="waveform-bar"></div>
+        <div class="waveform-bar"></div>
+        <div class="waveform-bar"></div>
+        <div class="waveform-bar"></div>
+        <div class="waveform-bar"></div>
+        <div class="waveform-bar"></div>
+        <div class="waveform-bar"></div>
+        <div class="waveform-bar"></div>
+        <div class="waveform-bar"></div>
+        <div class="waveform-bar"></div>
+        <div class="waveform-bar"></div>
+        <div class="waveform-bar"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── PROCESS ── -->
+  <section class="sub-section" style="padding-top:0; position:relative;z-index:10;">
+    <div class="sub-inner" style="max-width:1200px;">
+      <div class="reveal">
+        <div class="section-label">The Process</div>
+        <h2 class="section-title" style="font-size:clamp(36px,5vw,64px);">What Happens Next</h2>
+      </div>
+      <div class="process-steps">
+        <div class="process-step reveal">
+          <div class="step-num">01</div>
+          <div class="step-title">Submit</div>
+          <p class="step-text">Fill out the form below. Include a link to your track (SoundCloud, Dropbox, Google Drive, or any streaming link).</p>
+        </div>
+        <div class="process-step reveal" data-delay="100">
+          <div class="step-num">02</div>
+          <div class="step-title">We Listen</div>
+          <p class="step-text">Every submission is reviewed by a human. No algorithms. No auto-rejections. We give real attention to real music.</p>
+        </div>
+        <div class="process-step reveal" data-delay="200">
+          <div class="step-num">03</div>
+          <div class="step-title">We Respond</div>
+          <p class="step-text">If it's a fit, you'll hear from us within 2–4 weeks. Even if we pass, we'll tell you why. Respect is standard here.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FORM ── -->
+  <section class="sub-section" style="padding-top:0; position:relative;z-index:10;">
+    <div class="sub-inner">
+      <div class="reveal">
+        <div class="section-label">The Form</div>
+        <h2 class="section-title" style="font-size:clamp(36px,5vw,54px);">Drop Your Link</h2>
+        <p class="section-subtitle">No long questionnaires. No gatekeeping. Just your music, your story, and a link.</p>
+      </div>
+
+      <div class="sub-form-wrapper reveal" style="margin-top:40px;">
+        <!-- Corner decorations -->
+        <div class="corner-deco tl"></div>
+        <div class="corner-deco tr"></div>
+        <div class="corner-deco bl"></div>
+        <div class="corner-deco br"></div>
+
+        <!-- Typing line -->
+        <div style="margin-bottom:30px; display:flex; align-items:center; gap:12px;">
+          <div style="width:8px;height:8px;background:var(--neon-cyan);border-radius:50%;box-shadow:var(--glow-cyan);animation:pulse-dot 2s ease infinite;"></div>
+          <span class="typing-line">SUBMISSION PORTAL ACTIVE — ACCEPTING TRACKS</span>
+        </div>
+
+        <!-- Google Form Embed -->
+        <iframe
+          src="https://docs.google.com/forms/d/e/1FAIpQLSf_example_placeholder/viewform?embedded=true"
+          frameborder="0"
+          marginheight="0"
+          marginwidth="0"
+          title="SEOX Music Submission Form"
+          style="width:100%;min-height:520px;border:none;filter:invert(1) hue-rotate(180deg);opacity:0.9;"
+          loading="lazy">
+          <div style="text-align:center;padding:60px;font-family:var(--font-ui);color:rgba(255,255,255,0.5);">
+            <div style="font-family:var(--font-display);font-size:32px;margin-bottom:16px;">FORM LOADING</div>
+            <p>If the form doesn't load, <a href="mailto:submissions@seox.llc" style="color:var(--neon-cyan);">email us directly</a> at submissions@seox.llc</p>
+          </div>
+        </iframe>
+
+        <!-- Fallback contact -->
+        <div style="margin-top:24px; padding:24px; border:1px solid rgba(255,255,255,0.06); text-align:center;">
+          <p style="font-family:var(--font-ui);font-size:13px;color:rgba(255,255,255,0.35);letter-spacing:0.08em;">
+            Prefer email? Send your track directly to
+            <a href="mailto:submissions@seox.llc" style="color:var(--neon-cyan);text-decoration:none;">submissions@seox.llc</a>
+          </p>
+        </div>
+      </div>
+
+      <div class="sub-note reveal" style="margin-top:24px;">
+        <span>◆</span> We listen to every submission. <span>No exceptions.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── REQUIREMENTS ── -->
+  <section class="sub-section" style="position:relative;z-index:10;">
+    <div class="sub-inner" style="max-width:1200px;">
+      <div class="reveal">
+        <div class="section-label">What We're Looking For</div>
+        <h2 class="section-title" style="font-size:clamp(36px,5vw,54px);">No Genre Limits</h2>
+        <p class="section-subtitle">We sign the music we feel, not the music the market tells us to.</p>
+      </div>
+      <div class="sub-requirements" style="margin-top:40px;">
+        <div class="req-card reveal">
+          <div class="req-num">01</div>
+          <div class="req-title">Originality</div>
+          <p class="req-text">Sounds we've never heard before. Something that surprises us. Risk-taking, not trend-chasing.</p>
+        </div>
+        <div class="req-card reveal" data-delay="100">
+          <div class="req-num">02</div>
+          <div class="req-title">Production Quality</div>
+          <p class="req-text">Doesn't have to be studio-perfect. But it has to be intentional. Every element should be there for a reason.</p>
+        </div>
+        <div class="req-card reveal" data-delay="200">
+          <div class="req-num">03</div>
+          <div class="req-title">Vision</div>
+          <p class="req-text">We sign artists, not songs. We want to know who you are and where you're going, not just what you made.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FAQ ── -->
+  <section class="sub-section" style="position:relative;z-index:10;padding-top:0;">
+    <div class="sub-inner">
+      <div class="reveal">
+        <div class="section-label">FAQ</div>
+        <h2 class="section-title" style="font-size:clamp(32px,4vw,48px);">Common Questions</h2>
+      </div>
+      <div class="faq-section reveal">
+        <div class="faq-item">
+          <div class="faq-question">
+            <span>Do I keep my rights?</span>
+            <div class="faq-icon"></div>
+          </div>
+          <div class="faq-answer">
+            <p class="faq-answer-inner">Yes. We structure every deal with artist ownership in mind. We believe in shared success, not ownership extraction. Specifics are discussed during the signing process.</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question">
+            <span>How long does a response take?</span>
+            <div class="faq-icon"></div>
+          </div>
+          <div class="faq-answer">
+            <p class="faq-answer-inner">We aim to respond within 2–4 weeks. Volume permitting. We're a small team that actually listens, so we'd rather take the time and give you a real response.</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question">
+            <span>What genres do you accept?</span>
+            <div class="faq-icon"></div>
+          </div>
+          <div class="faq-answer">
+            <p class="faq-answer-inner">All of them. Seriously. Our roster spans rap, electronic, alt-rock, ambient, experimental, and everything in between. The only requirement is that it's real.</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question">
+            <span>Do I need to be established?</span>
+            <div class="faq-icon"></div>
+          </div>
+          <div class="faq-answer">
+            <p class="faq-answer-inner">No. We've signed artists with zero followers and first-time producers. We look at potential, not metrics. Show us your vision.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FOOTER ── -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="footer-logo">SEOX</div>
+        <p>The Future of Sound.<br>New York · Global<br>© 2024 SEOX, LLC</p>
+      </div>
+      <div class="footer-col">
+        <h4>Navigate</h4>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="artists.html">Artists</a></li>
+          <li><a href="submissions.html">Submissions</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Connect</h4>
+        <ul>
+          <li><a href="mailto:contact@seox.llc">contact@seox.llc</a></li>
+          <li><a href="#">@seoxllc</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2024 SEOX, LLC. All Rights Reserved.</span>
+      <span>The Future of Sound</span>
+    </div>
+  </footer>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+<script src="script.js"></script>
+<script>
+/* ── FAQ Accordion ── */
+document.querySelectorAll('.faq-item').forEach(item => {
+  const q = item.querySelector('.faq-question');
+  const a = item.querySelector('.faq-answer');
+
+  q.addEventListener('click', () => {
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item').forEach(i => {
+      i.classList.remove('open');
+      i.querySelector('.faq-answer').style.height = '0';
+    });
+    if (!isOpen) {
+      item.classList.add('open');
+      a.style.height = a.scrollHeight + 'px';
+    }
+  });
+});
+
+/* ── Pulse dot ── */
+const style = document.createElement('style');
+style.textContent = `@keyframes pulse-dot { 0%,100%{box-shadow:0 0 6px rgba(0,245,255,.5)} 50%{box-shadow:0 0 20px rgba(0,245,255,1)} }`;
+document.head.appendChild(style);
+</script>
+</body>
+</html>

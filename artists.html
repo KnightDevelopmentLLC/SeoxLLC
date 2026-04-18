@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Artists — SEOX, LLC</title>
+  <meta name="description" content="Meet the artists of SEOX, LLC — the next generation of music." />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* ── Artists-specific ── */
+
+    /* Artist card 3D tilt */
+    .artist-card {
+      transform-style: preserve-3d;
+      will-change: transform;
+    }
+
+    /* Colored accent per artist */
+    .artist-card[data-accent="cyan"] .artist-genre { color: var(--neon-cyan); }
+    .artist-card[data-accent="purple"] .artist-genre { color: var(--neon-purple); }
+    .artist-card[data-accent="white"] .artist-genre { color: rgba(255,255,255,0.7); }
+
+    /* Pattern backgrounds for each artist */
+    .pattern-1 {
+      background: radial-gradient(ellipse at 30% 70%, rgba(0,245,255,0.15) 0%, transparent 60%),
+                  radial-gradient(ellipse at 80% 20%, rgba(191,0,255,0.1) 0%, transparent 50%),
+                  var(--dark-2);
+    }
+    .pattern-2 {
+      background: radial-gradient(ellipse at 70% 30%, rgba(191,0,255,0.2) 0%, transparent 60%),
+                  radial-gradient(ellipse at 20% 80%, rgba(0,245,255,0.08) 0%, transparent 50%),
+                  var(--dark-2);
+    }
+    .pattern-3 {
+      background: linear-gradient(135deg, var(--dark-3) 0%, rgba(0,245,255,0.05) 100%),
+                  var(--dark-2);
+    }
+    .pattern-4 {
+      background: radial-gradient(ellipse at 50% 50%, rgba(255,255,255,0.06) 0%, transparent 70%),
+                  var(--dark-2);
+    }
+    .pattern-5 {
+      background: linear-gradient(45deg, rgba(191,0,255,0.1) 0%, transparent 50%),
+                  radial-gradient(ellipse at 80% 80%, rgba(0,245,255,0.1) 0%, transparent 60%),
+                  var(--dark-2);
+    }
+
+    /* Artist big letter bg */
+    .artist-letter {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: var(--font-display);
+      font-size: clamp(120px, 15vw, 180px);
+      color: rgba(255,255,255,0.04);
+      user-select: none;
+      pointer-events: none;
+      line-height: 1;
+      transition: opacity var(--transition-med);
+    }
+
+    .artist-card:hover .artist-letter { opacity: 0; }
+
+    /* Canvas per card */
+    .artist-card-canvas {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* Tilt wrapper */
+    .tilt-wrap {
+      width: 100%; height: 100%;
+      position: absolute;
+      inset: 0;
+      transform-style: preserve-3d;
+    }
+
+    /* Section header with filter row */
+    .artists-header-row {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 60px;
+    }
+
+    .filter-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      padding: 8px 20px;
+      border: 1px solid rgba(255,255,255,0.1);
+      font-family: var(--font-ui);
+      font-size: 10px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
+      transition: all var(--transition-fast);
+      cursor: none;
+    }
+
+    .filter-btn.active,
+    .filter-btn:hover {
+      border-color: var(--neon-cyan);
+      color: var(--neon-cyan);
+      background: rgba(0,245,255,0.05);
+    }
+
+    /* Noise lines on cards */
+    .artist-scan-line {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(0,245,255,0.5), transparent);
+      z-index: 20;
+      transform: translateY(-100%);
+      transition: transform 0.4s ease;
+    }
+
+    .artist-card:hover .artist-scan-line {
+      animation: card-scan 0.5s ease forwards;
+    }
+
+    @keyframes card-scan {
+      from { transform: translateY(-2px); }
+      to { transform: translateY(calc(100% + 2px)); }
+    }
+
+    /* Featured badge */
+    .artist-badge {
+      position: absolute;
+      top: 20px; right: 20px;
+      font-family: var(--font-ui);
+      font-size: 9px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      padding: 5px 10px;
+      border: 1px solid rgba(0,245,255,0.3);
+      color: var(--neon-cyan);
+      background: rgba(0,0,0,0.5);
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+
+<div class="noise-overlay"></div>
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+<div id="loading-screen">
+  <div class="loader-logo">SEOX</div>
+  <div class="loader-bar-track"><div class="loader-bar-fill"></div></div>
+  <div class="loader-text">Loading Artists</div>
+</div>
+<div id="page-transition"></div>
+
+<!-- ── Nav ── -->
+<nav id="navbar">
+  <a href="index.html" class="nav-logo">SEOX</a>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="artists.html" class="active">Artists</a></li>
+    <li><a href="submissions.html">Submit</a></li>
+    <li><a href="contact.html">Contact</a></li>
+  </ul>
+  <div class="nav-hamburger" id="nav-hamburger">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+<div class="nav-mobile" id="nav-mobile">
+  <a href="index.html">Home</a>
+  <a href="about.html">About</a>
+  <a href="artists.html">Artists</a>
+  <a href="submissions.html">Submit</a>
+  <a href="contact.html">Contact</a>
+</div>
+
+<canvas id="bg-canvas" style="position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0.3;"></canvas>
+
+<div class="page-content">
+
+  <!-- ── HERO ── -->
+  <section class="artists-hero" style="padding-top: var(--nav-height);">
+    <div class="container" style="position:relative;z-index:10;width:100%;">
+      <div class="section-label">The Roster</div>
+      <h1 class="about-hero-title" style="font-family:var(--font-display); font-size:clamp(60px,10vw,130px); letter-spacing:0.05em; line-height:0.95;">
+        THE ARTISTS
+      </h1>
+    </div>
+  </section>
+
+  <!-- ── ARTISTS GRID ── -->
+  <section class="artists-section">
+    <div class="container">
+      <div class="artists-header-row">
+        <div class="reveal">
+          <div class="section-label">Current Roster</div>
+          <h2 class="section-title" style="font-size:clamp(32px,4vw,54px);">Meet the Visionaries</h2>
+        </div>
+        <div class="filter-row reveal">
+          <button class="filter-btn active" data-filter="all">All</button>
+          <button class="filter-btn" data-filter="rap">Rap</button>
+          <button class="filter-btn" data-filter="electronic">Electronic</button>
+          <button class="filter-btn" data-filter="alt">Alt</button>
+          <button class="filter-btn" data-filter="experimental">Experimental</button>
+        </div>
+      </div>
+
+      <div class="artists-grid">
+
+        <!-- Artist 1: H3LL HUNT3R -->
+        <div class="artist-card reveal" data-accent="cyan" data-genre="rap"
+             data-name="H3LL HUNT3R"
+             data-label="Rap / Trap"
+             data-bio="H3LL HUNT3R is the dark horse of SEOX. Known for bone-crushing 808s, razor-sharp lyricism, and visuals that blur the line between horror and hip-hop. His debut on SEOX redefined what underground rap sounds like in 2024."
+             data-instagram="@h3llhunt3r" data-soundcloud="H3LL HUNT3R">
+          <div class="artist-scan-line"></div>
+          <div class="artist-bg pattern-1">
+            <canvas class="artist-card-canvas" data-color="0x00f5ff"></canvas>
+          </div>
+          <div class="artist-letter">H</div>
+          <div class="artist-badge">Featured</div>
+          <div class="artist-card-overlay"></div>
+          <div class="artist-glow"></div>
+          <div class="artist-info">
+            <div class="artist-genre">Rap / Trap</div>
+            <div class="artist-name">H3LL HUNT3R</div>
+            <div class="artist-desc-short">Dark horse of SEOX. Bone-crushing 808s and razor-sharp lyricism.</div>
+          </div>
+        </div>
+
+        <!-- Artist 2: VØID SIGNAL -->
+        <div class="artist-card reveal" data-delay="80" data-accent="purple" data-genre="electronic"
+             data-name="VØID SIGNAL"
+             data-label="Electronic / Industrial"
+             data-bio="VØID SIGNAL operates at the edge of electronic music and industrial noise. Crafting soundscapes that feel alien and human at once, their productions have been featured in global underground clubs from Berlin to Tokyo."
+             data-instagram="@voidsignal" data-soundcloud="VOID SIGNAL">
+          <div class="artist-scan-line"></div>
+          <div class="artist-bg pattern-2">
+            <canvas class="artist-card-canvas" data-color="0xbf00ff"></canvas>
+          </div>
+          <div class="artist-letter">V</div>
+          <div class="artist-card-overlay"></div>
+          <div class="artist-glow"></div>
+          <div class="artist-info">
+            <div class="artist-genre">Electronic / Industrial</div>
+            <div class="artist-name">VØID SIGNAL</div>
+            <div class="artist-desc-short">Alien soundscapes. Berlin to Tokyo. Edge of electronic and industrial.</div>
+          </div>
+        </div>
+
+        <!-- Artist 3: NXVAK -->
+        <div class="artist-card reveal" data-delay="160" data-accent="white" data-genre="alt"
+             data-name="NXVAK"
+             data-label="Alt / Indie"
+             data-bio="NXVAK writes songs that feel like memories you've never had. Genre-bending alt-rock with ambient undertones and lyrics that cut clean through noise. Critics call it 'the sound of existential clarity.'"
+             data-instagram="@nxvak" data-soundcloud="NXVAK">
+          <div class="artist-scan-line"></div>
+          <div class="artist-bg pattern-3">
+            <canvas class="artist-card-canvas" data-color="0xffffff"></canvas>
+          </div>
+          <div class="artist-letter">N</div>
+          <div class="artist-card-overlay"></div>
+          <div class="artist-glow"></div>
+          <div class="artist-info">
+            <div class="artist-genre">Alt / Indie</div>
+            <div class="artist-name">NXVAK</div>
+            <div class="artist-desc-short">Songs like memories you've never had. Existential alt-rock clarity.</div>
+          </div>
+        </div>
+
+        <!-- Artist 4: ZYPHER X -->
+        <div class="artist-card reveal" data-delay="80" data-accent="cyan" data-genre="experimental"
+             data-name="ZYPHER X"
+             data-label="Experimental / Ambient"
+             data-bio="ZYPHER X pushes the boundaries of composition itself. Building entire sonic worlds from silence, field recordings, and synthesizers tuned to frequencies most producers have never touched. The definition of experimental."
+             data-instagram="@zypherx" data-soundcloud="ZYPHER X">
+          <div class="artist-scan-line"></div>
+          <div class="artist-bg pattern-4">
+            <canvas class="artist-card-canvas" data-color="0x00f5ff"></canvas>
+          </div>
+          <div class="artist-letter">Z</div>
+          <div class="artist-card-overlay"></div>
+          <div class="artist-glow"></div>
+          <div class="artist-info">
+            <div class="artist-genre">Experimental / Ambient</div>
+            <div class="artist-name">ZYPHER X</div>
+            <div class="artist-desc-short">Sonic worlds from silence. Frequencies most producers have never touched.</div>
+          </div>
+        </div>
+
+        <!-- Artist 5: MXRK BLVCK -->
+        <div class="artist-card reveal" data-delay="160" data-accent="purple" data-genre="rap"
+             data-name="MXRK BLVCK"
+             data-label="Hip-Hop / R&B"
+             data-bio="MXRK BLVCK is the new voice of melodic rap. Bridging classic hip-hop storytelling with R&B emotion and production that hits harder than anything on mainstream radio. Born in Detroit. Built for the world."
+             data-instagram="@mxrkblvck" data-soundcloud="MXRK BLVCK">
+          <div class="artist-scan-line"></div>
+          <div class="artist-bg pattern-5">
+            <canvas class="artist-card-canvas" data-color="0xbf00ff"></canvas>
+          </div>
+          <div class="artist-letter">M</div>
+          <div class="artist-card-overlay"></div>
+          <div class="artist-glow"></div>
+          <div class="artist-info">
+            <div class="artist-genre">Hip-Hop / R&B</div>
+            <div class="artist-name">MXRK BLVCK</div>
+            <div class="artist-desc-short">Melodic rap from Detroit. Built for the world. Born to blow up.</div>
+          </div>
+        </div>
+
+        <!-- Artist 6: ECHO/LXST -->
+        <div class="artist-card reveal" data-delay="240" data-accent="white" data-genre="electronic"
+             data-name="ECHO/LXST"
+             data-label="Electronic / House"
+             data-bio="ECHO/LXST crafts deep house and electronica that feels like driving through a city at 3AM. Immersive. Lonely. Perfect. Their debut EP on SEOX became an underground hit across Europe and Latin America."
+             data-instagram="@echolxst" data-soundcloud="ECHO/LXST">
+          <div class="artist-scan-line"></div>
+          <div class="artist-bg pattern-1">
+            <canvas class="artist-card-canvas" data-color="0xffffff"></canvas>
+          </div>
+          <div class="artist-letter">E</div>
+          <div class="artist-card-overlay"></div>
+          <div class="artist-glow"></div>
+          <div class="artist-info">
+            <div class="artist-genre">Electronic / House</div>
+            <div class="artist-name">ECHO/LXST</div>
+            <div class="artist-desc-short">3AM city vibes. Deep house perfection. Underground hit across two continents.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CTA ── -->
+  <section class="home-section" style="background:var(--dark-1); border-top:1px solid rgba(255,255,255,0.04); position:relative;z-index:10; text-align:center;">
+    <div class="container">
+      <div class="reveal">
+        <div class="section-label" style="justify-content:center;">Open Roster</div>
+        <h2 class="section-title">Your Name<br>Could Be Here</h2>
+        <p class="section-subtitle" style="margin:20px auto 40px; text-align:center;">We're always looking for the next voice that changes everything.</p>
+        <a href="submissions.html" class="btn btn-primary">Submit Your Track</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FOOTER ── -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="footer-logo">SEOX</div>
+        <p>The Future of Sound.<br>New York · Global<br>© 2024 SEOX, LLC</p>
+      </div>
+      <div class="footer-col">
+        <h4>Navigate</h4>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="artists.html">Artists</a></li>
+          <li><a href="submissions.html">Submissions</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Connect</h4>
+        <ul>
+          <li><a href="mailto:contact@seox.llc">contact@seox.llc</a></li>
+          <li><a href="#">@seoxllc</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2024 SEOX, LLC. All Rights Reserved.</span>
+      <span>The Future of Sound</span>
+    </div>
+  </footer>
+
+</div>
+
+<!-- ── Artist Modal ── -->
+<div class="artist-modal" id="artist-modal">
+  <div class="modal-backdrop" id="modal-backdrop"></div>
+  <div class="modal-content">
+    <button class="modal-close" id="modal-close">✕</button>
+    <div class="modal-label" id="modal-label">Artist</div>
+    <h2 class="modal-name" id="modal-name">Name</h2>
+    <p class="modal-desc" id="modal-desc">Bio</p>
+    <div class="modal-socials">
+      <a href="#" class="modal-social-link" id="modal-ig">Instagram</a>
+      <a href="#" class="modal-social-link" id="modal-sc">SoundCloud</a>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+<script src="script.js"></script>
+<script>
+/* ── Artist cards: 3D tilt & canvas ── */
+document.addEventListener('DOMContentLoaded', () => {
+
+  // 3D Tilt
+  document.querySelectorAll('.artist-card').forEach(card => {
+    card.addEventListener('mousemove', e => {
+      const rect = card.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width  - 0.5;
+      const y = (e.clientY - rect.top)  / rect.height - 0.5;
+      card.style.transform = `perspective(600px) rotateY(${x * 12}deg) rotateX(${-y * 10}deg) scale3d(1.03,1.03,1.03)`;
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = '';
+    });
+
+    // Click → open modal
+    card.addEventListener('click', () => {
+      const modal = document.getElementById('artist-modal');
+      document.getElementById('modal-label').textContent  = card.dataset.label;
+      document.getElementById('modal-name').textContent   = card.dataset.name;
+      document.getElementById('modal-desc').textContent   = card.dataset.bio;
+      document.getElementById('modal-ig').textContent     = card.dataset.instagram;
+      document.getElementById('modal-sc').textContent     = card.dataset.soundcloud;
+      modal.classList.add('open');
+    });
+  });
+
+  // Close modal
+  const modal = document.getElementById('artist-modal');
+  document.getElementById('modal-close').addEventListener('click', () => modal.classList.remove('open'));
+  document.getElementById('modal-backdrop').addEventListener('click', () => modal.classList.remove('open'));
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') modal.classList.remove('open'); });
+
+  // Filter buttons
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const filter = btn.dataset.filter;
+      document.querySelectorAll('.artist-card').forEach(card => {
+        if (filter === 'all' || card.dataset.genre === filter) {
+          card.style.opacity = '1';
+          card.style.pointerEvents = 'all';
+          card.style.transform = '';
+        } else {
+          card.style.opacity = '0.2';
+          card.style.pointerEvents = 'none';
+        }
+      });
+    });
+  });
+
+  // Mini Three.js per card
+  if (typeof THREE !== 'undefined') {
+    document.querySelectorAll('.artist-card-canvas').forEach(canvas => {
+      const color = parseInt(canvas.dataset.color);
+      const W = canvas.offsetWidth  || 300;
+      const H = canvas.offsetHeight || 400;
+
+      const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false });
+      renderer.setPixelRatio(1);
+      renderer.setSize(W, H);
+
+      const scene  = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(60, W / H, 0.1, 500);
+      camera.position.z = 50;
+
+      // Floating particles
+      const geo = new THREE.BufferGeometry();
+      const N = 200;
+      const pos = new Float32Array(N * 3);
+      for (let i = 0; i < N; i++) {
+        pos[i * 3]     = (Math.random() - 0.5) * 100;
+        pos[i * 3 + 1] = (Math.random() - 0.5) * 100;
+        pos[i * 3 + 2] = (Math.random() - 0.5) * 80;
+      }
+      geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+      scene.add(new THREE.Points(geo, new THREE.PointsMaterial({
+        color, size: 0.6, transparent: true, opacity: 0.5,
+        blending: THREE.AdditiveBlending, depthWrite: false
+      })));
+
+      let t = Math.random() * 100;
+      function tick() {
+        requestAnimationFrame(tick);
+        t += 0.008;
+        scene.rotation.y = t * 0.1;
+        renderer.render(scene, camera);
+      }
+      tick();
+    });
+  }
+
+});
+</script>
+</body>
+</html>

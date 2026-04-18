@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact — SEOX, LLC</title>
+  <meta name="description" content="Contact SEOX, LLC — reach us by email or social media." />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* ── Contact-specific ── */
+
+    /* Glowing icons */
+    .contact-card-icon svg {
+      width: 32px; height: 32px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.5;
+    }
+
+    /* Social links list */
+    .social-link-item {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 28px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      transition: padding-left var(--transition-med);
+      cursor: none;
+    }
+
+    .social-link-item:hover {
+      padding-left: 12px;
+    }
+
+    .social-icon-box {
+      width: 50px; height: 50px;
+      border: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+      transition: border-color var(--transition-fast), background var(--transition-fast);
+    }
+
+    .social-link-item:hover .social-icon-box {
+      border-color: var(--neon-cyan);
+      background: rgba(0,245,255,0.05);
+    }
+
+    .social-link-text {
+      flex: 1;
+    }
+
+    .social-link-label {
+      font-family: var(--font-ui);
+      font-size: 10px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.2);
+      margin-bottom: 4px;
+    }
+
+    .social-link-handle {
+      font-family: var(--font-display);
+      font-size: 22px;
+      letter-spacing: 0.05em;
+      color: var(--white);
+      transition: color var(--transition-fast);
+    }
+
+    .social-link-item:hover .social-link-handle { color: var(--neon-cyan); }
+
+    .social-link-arrow {
+      font-size: 18px;
+      color: rgba(255,255,255,0.2);
+      transition: color var(--transition-fast), transform var(--transition-fast);
+    }
+
+    .social-link-item:hover .social-link-arrow {
+      color: var(--neon-cyan);
+      transform: translateX(6px);
+    }
+
+    /* Email section */
+    .email-display {
+      font-family: var(--font-display);
+      font-size: clamp(24px, 3.5vw, 48px);
+      letter-spacing: 0.05em;
+      color: var(--white);
+      display: block;
+      margin-top: 10px;
+      transition: color var(--transition-fast);
+      word-break: break-all;
+    }
+
+    .email-display:hover { color: var(--neon-cyan); }
+
+    /* Glowing lines decoration */
+    .contact-line-deco {
+      position: absolute;
+      pointer-events: none;
+    }
+
+    /* Map/location aesthetic */
+    .location-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border: 1px solid rgba(255,255,255,0.08);
+      font-family: var(--font-ui);
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+    }
+
+    .location-dot {
+      width: 6px; height: 6px;
+      background: var(--neon-cyan);
+      border-radius: 50%;
+      box-shadow: var(--glow-cyan);
+      animation: pulse-dot 2s ease infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.5); }
+    }
+
+    /* Big email hero */
+    .contact-hero-email {
+      font-family: var(--font-display);
+      font-size: clamp(36px, 5vw, 72px);
+      letter-spacing: 0.05em;
+      line-height: 1;
+      color: rgba(255,255,255,0.8);
+      display: block;
+      margin-top: 20px;
+      transition: color var(--transition-fast), text-shadow var(--transition-fast);
+    }
+
+    .contact-hero-email:hover {
+      color: var(--neon-cyan);
+      text-shadow: 0 0 40px rgba(0,245,255,0.5);
+    }
+
+    /* Orbit animation for contact glow */
+    .contact-orbit {
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid rgba(0,245,255,0.06);
+      pointer-events: none;
+    }
+
+    .contact-orbit-1 { width: 300px; height: 300px; top: 50%; left: 50%; transform: translate(-50%,-50%); animation: orbit-spin 20s linear infinite; }
+    .contact-orbit-2 { width: 500px; height: 500px; top: 50%; left: 50%; transform: translate(-50%,-50%); animation: orbit-spin 30s linear infinite reverse; }
+
+    @keyframes orbit-spin {
+      from { transform: translate(-50%,-50%) rotate(0deg); }
+      to   { transform: translate(-50%,-50%) rotate(360deg); }
+    }
+
+    .contact-orbit::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 50%;
+      width: 5px; height: 5px;
+      background: var(--neon-cyan);
+      border-radius: 50%;
+      box-shadow: var(--glow-cyan);
+      transform: translate(-50%, -50%);
+    }
+  </style>
+</head>
+<body>
+
+<div class="noise-overlay"></div>
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+<div id="loading-screen">
+  <div class="loader-logo">SEOX</div>
+  <div class="loader-bar-track"><div class="loader-bar-fill"></div></div>
+  <div class="loader-text">Loading</div>
+</div>
+<div id="page-transition"></div>
+
+<nav id="navbar">
+  <a href="index.html" class="nav-logo">SEOX</a>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="artists.html">Artists</a></li>
+    <li><a href="submissions.html">Submit</a></li>
+    <li><a href="contact.html" class="active">Contact</a></li>
+  </ul>
+  <div class="nav-hamburger" id="nav-hamburger">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+<div class="nav-mobile" id="nav-mobile">
+  <a href="index.html">Home</a>
+  <a href="about.html">About</a>
+  <a href="artists.html">Artists</a>
+  <a href="submissions.html">Submit</a>
+  <a href="contact.html">Contact</a>
+</div>
+
+<canvas id="bg-canvas" style="position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0.3;"></canvas>
+
+<div class="page-content">
+
+  <!-- ── HERO ── -->
+  <section class="contact-hero" style="padding-top:var(--nav-height);">
+    <div class="container" style="position:relative;z-index:10;width:100%;">
+      <div class="location-badge">
+        <span class="location-dot"></span>
+        New York · Global
+      </div>
+      <h1 style="font-family:var(--font-display); font-size:clamp(60px,10vw,130px); letter-spacing:0.05em; line-height:0.95; margin-top:20px;">
+        LET'S TALK
+      </h1>
+      <a href="mailto:contact@seox.llc" class="contact-hero-email">contact@seox.llc</a>
+    </div>
+  </section>
+
+  <!-- ── CONTACT CARDS ── -->
+  <section class="contact-section">
+    <div class="container">
+      <div class="reveal" style="margin-bottom:0;">
+        <div class="section-label">Reach Us</div>
+        <h2 class="section-title" style="font-size:clamp(32px,4vw,52px);">Get In Touch</h2>
+        <p class="section-subtitle">No forms. No waiting rooms. Just real communication.</p>
+      </div>
+
+      <div class="contact-grid">
+
+        <!-- Email Card -->
+        <a href="mailto:contact@seox.llc" class="contact-card reveal">
+          <div class="contact-card-icon">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+              <polyline points="22,6 12,13 2,6"/>
+            </svg>
+          </div>
+          <div class="contact-card-type">Email</div>
+          <div class="contact-card-value">contact@seox.llc</div>
+          <div style="font-family:var(--font-ui);font-size:12px;color:rgba(255,255,255,0.25);letter-spacing:0.1em;margin-top:8px;">
+            General inquiries, partnerships
+          </div>
+        </a>
+
+        <!-- Instagram Card -->
+        <a href="https://instagram.com/seoxllc" target="_blank" rel="noopener" class="contact-card reveal" data-delay="80">
+          <div class="contact-card-icon">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+            </svg>
+          </div>
+          <div class="contact-card-type">Instagram</div>
+          <div class="contact-card-handle">@seoxllc</div>
+          <div style="font-family:var(--font-ui);font-size:12px;color:rgba(255,255,255,0.25);letter-spacing:0.1em;margin-top:8px;">
+            Latest drops, behind the scenes
+          </div>
+        </a>
+
+      </div>
+
+      <!-- Social Links List -->
+      <div style="margin-top:2px;">
+
+        <a href="mailto:submissions@seox.llc" class="contact-card reveal" style="display:flex;flex-direction:row;align-items:center;gap:24px;padding:40px 50px;">
+          <div style="font-size:24px;flex-shrink:0;">🎵</div>
+          <div style="flex:1;">
+            <div class="contact-card-type">Submissions</div>
+            <div class="contact-card-value" style="font-size:22px;">submissions@seox.llc</div>
+          </div>
+          <div style="font-family:var(--font-ui);font-size:10px;letter-spacing:0.3em;text-transform:uppercase;color:rgba(255,255,255,0.2);flex-shrink:0;">→ Send Track</div>
+        </a>
+
+        <a href="mailto:press@seox.llc" class="contact-card reveal" style="display:flex;flex-direction:row;align-items:center;gap:24px;padding:40px 50px;" data-delay="80">
+          <div style="font-size:24px;flex-shrink:0;">📰</div>
+          <div style="flex:1;">
+            <div class="contact-card-type">Press & Media</div>
+            <div class="contact-card-value" style="font-size:22px;">press@seox.llc</div>
+          </div>
+          <div style="font-family:var(--font-ui);font-size:10px;letter-spacing:0.3em;text-transform:uppercase;color:rgba(255,255,255,0.2);flex-shrink:0;">→ Media Kit</div>
+        </a>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── Social Links ── -->
+  <section class="contact-section" style="padding-top:0; position:relative; z-index:10;">
+    <div class="container">
+      <div class="reveal">
+        <div class="section-label">Social</div>
+        <h2 class="section-title" style="font-size:clamp(28px,3.5vw,48px);">Follow the Movement</h2>
+      </div>
+
+      <div style="margin-top:40px;">
+
+        <a href="https://instagram.com/seoxllc" target="_blank" rel="noopener" class="social-link-item reveal">
+          <div class="social-icon-box">📸</div>
+          <div class="social-link-text">
+            <div class="social-link-label">Instagram</div>
+            <div class="social-link-handle">@seoxllc</div>
+          </div>
+          <div class="social-link-arrow">→</div>
+        </a>
+
+        <a href="#" class="social-link-item reveal">
+          <div class="social-icon-box">🎧</div>
+          <div class="social-link-text">
+            <div class="social-link-label">SoundCloud</div>
+            <div class="social-link-handle">SEOX Official</div>
+          </div>
+          <div class="social-link-arrow">→</div>
+        </a>
+
+        <a href="#" class="social-link-item reveal">
+          <div class="social-icon-box">🎵</div>
+          <div class="social-link-text">
+            <div class="social-link-label">Spotify</div>
+            <div class="social-link-handle">SEOX Records</div>
+          </div>
+          <div class="social-link-arrow">→</div>
+        </a>
+
+        <a href="#" class="social-link-item reveal">
+          <div class="social-icon-box">▶️</div>
+          <div class="social-link-text">
+            <div class="social-link-label">YouTube</div>
+            <div class="social-link-handle">SEOX TV</div>
+          </div>
+          <div class="social-link-arrow">→</div>
+        </a>
+
+        <a href="#" class="social-link-item reveal">
+          <div class="social-icon-box">𝕏</div>
+          <div class="social-link-text">
+            <div class="social-link-label">X / Twitter</div>
+            <div class="social-link-handle">@seoxllc</div>
+          </div>
+          <div class="social-link-arrow">→</div>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Big CTA ── -->
+  <section class="contact-message-section">
+    <div class="contact-message-inner">
+      <div class="reveal" style="position:relative;">
+        <div class="contact-orbit-1 contact-orbit"></div>
+        <div class="contact-orbit-2 contact-orbit"></div>
+        <div class="section-label" style="justify-content:center;">Always On</div>
+        <h2 class="contact-big-text">
+          THE FUTURE<br>
+          <span class="neon-cyan">DOESN'T WAIT</span>
+        </h2>
+        <p class="contact-sub-text">
+          If you're building something real — music, a partnership, a collaboration — don't hesitate. We're here. We're listening. And we move fast.
+        </p>
+        <a href="mailto:contact@seox.llc" class="btn btn-primary">Send a Message</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FOOTER ── -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="footer-logo">SEOX</div>
+        <p>The Future of Sound.<br>New York · Global<br>© 2024 SEOX, LLC</p>
+      </div>
+      <div class="footer-col">
+        <h4>Navigate</h4>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="artists.html">Artists</a></li>
+          <li><a href="submissions.html">Submissions</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Connect</h4>
+        <ul>
+          <li><a href="mailto:contact@seox.llc">contact@seox.llc</a></li>
+          <li><a href="#">@seoxllc</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2024 SEOX, LLC. All Rights Reserved.</span>
+      <span>The Future of Sound</span>
+    </div>
+  </footer>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
